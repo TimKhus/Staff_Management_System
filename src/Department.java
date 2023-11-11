@@ -1,0 +1,3 @@
+public enum Department {
+    IT, FINANCE, HR, MARKETING, SALES, CLIENT, OPERATIONS, SUPPORT;
+}
