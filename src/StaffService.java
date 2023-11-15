@@ -2,14 +2,14 @@ import java.io.*;
 import java.util.*;
 
 public class StaffService implements Service {
-    private BufferedReader reader;
+    private final BufferedReader reader;
     private BufferedWriter writer;
     private static HashMap<String, Employee> employees;
 
     public StaffService(BufferedReader reader, BufferedWriter writer) {
         this.reader = reader;
         this.writer = writer;
-        this.employees = readData();  // Read data from database file when application starts
+        employees = readData();  // Read data from database file when application starts
     }
 
     public static HashMap<String, Employee> getEmployees() {
@@ -18,186 +18,87 @@ public class StaffService implements Service {
 
     @Override
     public void addEmployee() {
-        Scanner sc = new Scanner(System.in);
-        String firstName, lastName, department, role;
+        String firstName, lastName, department, role, startDate;
         double salary;
         System.out.println("Enter employee details - First Name, Last Name, Department, Role, Salary: ");
-
-        while (true) {
-            System.out.println("First Name: ");
-            String input = sc.nextLine().trim().toLowerCase();
-            if (!input.isEmpty() && containsOnlyLettersAndSpaces(input) && containsNotOnlySpace(input)) {
-                firstName = capitalizeFirstLetter(input);
-                break;
-            } else {
-                System.out.println("Wrong input");
-            }
-        }
-
-        while (true) {
-            System.out.println("Last Name: ");
-            String input = sc.nextLine().trim().toLowerCase();
-
-            if (!input.isEmpty() && containsOnlyLettersAndSpaces(input) && containsNotOnlySpace(input)) {
-                lastName = capitalizeFirstLetter(input);
-                break;
-            } else {
-                System.out.println("Wrong input");
-            }
-        }
-
-        while (true) {
-            System.out.println("Choose department:");
-            printDepartments();
-            String input = sc.nextLine().trim();
-            if (isValidDepartment(input)) {
-                Department selectedDepartment = Department.valueOf(input.toUpperCase());
-                department = selectedDepartment.toString();
-                break;
-            } else {
-                System.out.println("Invalid department. Please enter a valid department.");
-            }
-        }
-
-        while (true) {
-            System.out.println("Role: ");
-            String input = sc.nextLine().trim().toLowerCase();
-
-            if (!input.isEmpty() && containsOnlyLettersAndSpaces(input) && containsNotOnlySpace(input)) {
-                role = capitalizeFirstLetter(input);
-                break;
-            } else {
-                System.out.println("Wrong input");
-            }
-        }
-
-        while (true) {
-            System.out.println("Salary: ");
-            String input = sc.nextLine().trim();
-
-            if (!input.isEmpty() && isNumeric(input)) {
-                salary = Double.parseDouble(input);
-                break;
-            }
-            else {
-                System.out.println("Wrong input");
-            }
-        }
-
-        Employee newEmployee = new Employee(firstName, lastName, department, role, salary);
+        firstName = Validation.validateInput("First Name: ", new Validation.LettersAndSpaceValidator());
+        lastName = Validation.validateInput("Last Name: ", new Validation.LettersAndSpaceValidator());
+        department = Validation.validateInput("Choose department:", new Validation.DepartmentValidator());
+        role = Validation.validateInput("Role: ", new Validation.LettersAndSpaceValidator());
+        salary = Integer.parseInt(Validation.validateInput("Salary: ", new Validation.DigitsValidator()));
+        startDate = Validation.validateInput("Start date: ", new Validation.DateValidator());
+        Employee newEmployee = new Employee(firstName, lastName, department, role, salary, startDate);
         employees.put(newEmployee.getId(), newEmployee);
-    }
-
-    private boolean isNumeric(String input) {
-        return input.matches("\\d+");
-    }
-
-    private boolean isValidDepartment(String input) {
-        try {
-            Department.valueOf(input.toUpperCase());
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    private void printDepartments() {
-        for (Department department : Department.values()) {
-            System.out.println(department);
-        }
-    }
-
-    private String capitalizeFirstLetter(String input) {
-        if (input == null || input.isEmpty()) {
-            return input;
-        }
-        return input.substring(0, 1).toUpperCase() + input.substring(1);
-    }
-
-    private boolean containsOnlyLettersAndSpaces(String input) {
-        return input.matches("[a-zA-Z ]+");
-    }
-
-    private boolean containsNotOnlySpace(String input) {
-        return input.matches(".*\\S.*");
     }
 
     @Override
     public void editEmployee() {
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the ID of the employee you want to edit: ");
-        String employeeId = sc.nextLine().trim();
+        System.out.println("Enter the ID of the employee you want to edit: ");
+        String employeeId = Validation.validateInput("ID: ", new Validation.IdValidator());
+
         if (employees.containsKey(employeeId)) {
             // get employee by ID
             Employee employeeToEdit = employees.get(employeeId);
             // Request new data from the user
             System.out.println("Enter new details for the employee (or press Enter to keep existing values):");
-            System.out.print("First Name [" + employeeToEdit.getFirstName() + "]: ");
-            String newFirstName = sc.nextLine().trim().toLowerCase();
+            String newFirstName = Validation.validateInput("First Name [" + employeeToEdit.getFirstName() + "]: ",
+                    new Validation.LettersAndSpaceValidator(), true);
             if (!newFirstName.isEmpty()) {
-                   if (containsOnlyLettersAndSpaces(newFirstName) && containsNotOnlySpace(newFirstName)) {
-                       employeeToEdit.setFirstName(capitalizeFirstLetter(newFirstName));
-                   } else {
-                       System.out.println("Wrong input. First name not changed");
-                   }
+                employeeToEdit.setFirstName(newFirstName);
+                System.out.printf("First name changed to %s%n%n", newFirstName);
             }
 
-            System.out.print("Last Name [" + employeeToEdit.getLastName() + "]: ");
-            String newLastName = sc.nextLine().trim().toLowerCase();
+            String newLastName = Validation.validateInput("Last Name [" + employeeToEdit.getLastName() + "]: ",
+                    new Validation.LettersAndSpaceValidator(), true);
             if (!newLastName.isEmpty()) {
-                if (containsOnlyLettersAndSpaces(newLastName) && containsNotOnlySpace(newLastName)) {
-                    employeeToEdit.setLastName(capitalizeFirstLetter(newLastName));
-                } else {
-                    System.out.println("Wrong input. Last name not changed");
-                }
+                employeeToEdit.setLastName(newLastName);
+                System.out.printf("Last name changed to %s%n%n", newLastName);
             }
 
-            System.out.print("Department [" + employeeToEdit.getDepartment() + "]");
-            System.out.println("Choose new department:");
-            printDepartments();
-            String input = sc.nextLine().trim();
-            if (isValidDepartment(input)) {
-                Department selectedDepartment = Department.valueOf(input.toUpperCase());
-                String newDepartment = selectedDepartment.toString();
+            String newDepartment = Validation.validateInput("Department [" + employeeToEdit.getDepartment() + "] " +
+                    "Choose new department: ", new Validation.DepartmentValidator(), true);
+            if (!newDepartment.isEmpty()) {
                 employeeToEdit.setDepartment(newDepartment);
-            } else {
-                System.out.println("Wrong input. Department not changed");
+                System.out.printf("Department changed to %s%n%n", newDepartment);
             }
 
-            System.out.print("Role [" + employeeToEdit.getRole() + "]: ");
-            String newRole = sc.nextLine().trim().toLowerCase();
+            String newRole = Validation.validateInput("Role [" + employeeToEdit.getRole() + "]: ",
+                    new Validation.LettersAndSpaceValidator(), true);
             if (!newRole.isEmpty()) {
-                if (containsOnlyLettersAndSpaces(newRole) && containsNotOnlySpace(newRole)) {
-                    employeeToEdit.setRole(capitalizeFirstLetter(newRole));
-                } else {
-                    System.out.println("Wrong input. Role not changed");
-                }
+                employeeToEdit.setRole(newRole);
+                System.out.printf("Role changed to %s%n%n", newRole);
             }
 
-            System.out.print("Salary [" + employeeToEdit.getSalary() + "]: ");
-            String newSalary = sc.nextLine().trim();
-            if (!newSalary.isEmpty()) {
-                if (isNumeric(newSalary)) {
-                    double salary = Double.parseDouble(newSalary);
-                    employeeToEdit.setSalary(salary);
-                } else {
-                    System.out.println("Wrong input. Salary not changed");
-                }
+            String inputSalary = Validation.validateInput("Salary [" + employeeToEdit.getSalary() + "]: ",
+                    new Validation.DigitsValidator(), true);
+            if (!inputSalary.isEmpty()) {
+                double newSalary = Double.parseDouble(inputSalary);
+                employeeToEdit.setSalary(newSalary);
+                System.out.printf("Salary changed to %.2f%n%n", newSalary);
             }
+
+            String newStartDate = Validation.validateInput("Start date [" + employeeToEdit.getStartDate() + "]: ",
+                    new Validation.DateValidator(), true);
+            if (!newStartDate.isEmpty()) {
+                employeeToEdit.setStartDate(newStartDate);
+                System.out.printf("Start date changed to %s%n%n", newStartDate);
+            }
+
             // notify user that the employee has been successfully edited
             System.out.println("Employee edited successfully.");
+            System.out.println();
         } else {
             System.out.println("Employee with ID " + employeeId + " not found.");
+            System.out.println();
         }
     }
 
+
     @Override
     public void fireEmployee() {
-        Scanner sc = new Scanner(System.in);
-
         // Enter ID of the employee you want to fire
-        System.out.print("Enter ID of the employee you want to fire: ");
-        String employeeId = sc.nextLine().trim();
+        String employeeId = Validation.validateInput("Enter the ID of the employee you want to fire (e.g. 0001 to 9999): ",
+                new Validation.IdValidator());
 
         // check if employee with this ID exist
         if (employees.containsKey(employeeId)) {
@@ -209,35 +110,45 @@ public class StaffService implements Service {
             displayEmployee(employeeToFire);
 
             // Confirm you really want to fire employee
-            System.out.print("Are you sure you want to fire this employee? (yes/no): ");
-            String confirmation = sc.nextLine().trim().toLowerCase();
+            String confirmation = Validation.validateInput("Are you sure you want to fire this employee? (yes/no): ",
+                    new Validation.LettersAndSpaceValidator());
 
-            if (confirmation.equals("yes")) {
+            if (confirmation.equals("Yes")) {
                 // delete employee from the list
                 employees.remove(employeeId);
                 System.out.println("Employee successfully fired.");
+                System.out.println();
             } else {
                 System.out.println("Employee not fired.");
+                System.out.println();
             }
         } else {
-            System.out.println("Employee with ID " + employeeId + " not found.");
+            System.out.println("Employee with ID " + employeeId + " not found. Please try with another ID");
+            System.out.println();
         }
     }
 
     @Override
     public List<Employee> listEmployees() {
         System.out.println("List of Employees:");
+        System.out.println();
 
-        if (employees == null || employees.isEmpty()) {
+        //sort employees by ID
+        List<Employee> sortedEmployees = new ArrayList<>(employees.values());
+        sortedEmployees.sort(Comparator.comparing(e -> Integer.parseInt(e.getId())));
+
+        if (sortedEmployees.isEmpty()) {
             System.out.println("No employees found");
             return null;
         } else {
-            for (Map.Entry<String, Employee> entry : employees.entrySet()) {
-                Employee employee = entry.getValue();
+            for (Employee employee: sortedEmployees) {
                 displayEmployee(employee);
                 System.out.println("-----------------------------");
             }
         }
+        System.out.println();
+        System.out.printf("Total number of employees: %d%n", employees.size());
+        System.out.println();
         return new ArrayList<>(employees.values());
     }
 
@@ -248,14 +159,14 @@ public class StaffService implements Service {
         System.out.println("Department: " + employee.getDepartment());
         System.out.println("Role: " + employee.getRole());
         System.out.println("Salary: " + employee.getSalary());
+        System.out.println("Start date: " + employee.getStartDate());
     }
 
     @Override
     public List<Employee> searchByName() {
-        Scanner sc = new Scanner(System.in);
         // Enter name of employee you want to find
-        System.out.println("Enter the name of the employee you want to find: ");
-        String searchName = sc.nextLine().trim().toLowerCase();
+        String searchName = Validation.validateInput("Enter the name of the employee you want to find: ",
+                new Validation.LettersAndSpaceValidator()).toLowerCase();
         List<Employee> foundEmployees = new ArrayList<>();
         // Check all employees and find those whose name match the request
         for (Employee employee : employees.values()) {
@@ -264,68 +175,88 @@ public class StaffService implements Service {
 
             if (firstName.contains(searchName) || lastName.contains(searchName)) {
                 foundEmployees.add(employee);
-                // display information about found employee
-                System.out.println("Employee found:");
-                displayEmployee(employee);
             }
         }
         if (foundEmployees.isEmpty()) {
             System.out.println("No employees found with the specified name.");
+            System.out.println();
+        } else {
+            // display information about found employee
+            displayFoundEmployees(foundEmployees);
         }
 
         return foundEmployees;
     }
 
+    // display information about found employees
+    public void displayFoundEmployees(List<Employee> foundEmployees) {
+        //sort employees by ID
+        List<Employee> sortedEmployees = new ArrayList<>(foundEmployees);
+        sortedEmployees.sort(Comparator.comparing(e -> Integer.parseInt(e.getId())));
+        if (sortedEmployees.size() == 1) {
+            System.out.println("1 employee found:");
+            System.out.println();
+        } else {
+            System.out.printf("%d employees found:%n", sortedEmployees.size());
+            System.out.println();
+        }
+
+        for (Employee employee : sortedEmployees) {
+            displayEmployee(employee);
+            System.out.println("-----------------------------");
+        }
+        System.out.println("Search is over");
+        System.out.println();
+    }
+
     @Override
     public Employee searchById() {
-        Scanner sc = new Scanner(System.in);
         // Enter ID of the employee you want to find
-        System.out.println("Enter the ID of the employee you want to find: ");
-        String employeeId = sc.nextLine().trim();
+        String employeeId = Validation.validateInput("Enter the ID of the employee you want to find (e.g. 0001 to 9999): ",
+                new Validation.IdValidator());
         // check if employee with this ID exists
         if (employees.containsKey(employeeId)) {
             // get employee bi ID
             Employee foundEmployee = employees.get(employeeId);
+            System.out.println();
             displayEmployee(foundEmployee);
+            System.out.println("-----------------------------");
+            System.out.println("Search is over");
+            System.out.println();
             return foundEmployee;
         } else {
-            System.out.println("Employee with ID " + employeeId + " not found.");
+            System.out.println("Employee with ID " + employeeId + " not found. Please try with another ID");
+            System.out.println();
             return null;  // Return null if employee not found
         }
     }
 
     @Override
     public List<Employee> searchByDepartment() {
-        Scanner sc = new Scanner(System.in);
-        // Enter name of employee you want to find
         System.out.println("Input department of the employee you want to find: ");
-        printDepartments();
-        String searchDepartment = sc.nextLine().trim().toLowerCase();
-        List<Employee> foundEmployees = new ArrayList<>();
-        if (isValidDepartment(searchDepartment)) {
-            // Check all employees and find those whose name match the request
-            for (Employee employee : employees.values()) {
-                String department = employee.getDepartment().toLowerCase();
+        String searchDepartment = Validation.validateInput("Input department of the employee you want to find: ",
+                new Validation.DepartmentValidator());
+        List<Employee> foundDepartmentEmployees = new ArrayList<>();
+        for (Employee employee : employees.values()) {
+            String department = employee.getDepartment();
 
-                if (department.equals(searchDepartment)) {
-                    foundEmployees.add(employee);
-                    // display information about found employee
-                    System.out.println("Employee found:");
-                    displayEmployee(employee);
-                }
+            if (department.equals(searchDepartment)) {
+                foundDepartmentEmployees.add(employee);
             }
+        }
+
+        if (foundDepartmentEmployees.isEmpty()) {
+            System.out.printf("No employees found in %s department%n", searchDepartment);
         } else {
-            System.out.println("No such department in the company");
+            // display information about found employee
+            displayFoundEmployees(foundDepartmentEmployees);
         }
-        if (foundEmployees.isEmpty()) {
-            System.out.println("No employees found with the specified name.");
-        }
-        return foundEmployees;
+        return foundDepartmentEmployees;
     }
 
     @Override
     public void saveData() {
-        try  {
+        try {
             // Clear file before writing
             writer.close();
             new FileWriter("data.csv", false).close();
@@ -333,9 +264,9 @@ public class StaffService implements Service {
             writer = new BufferedWriter(new FileWriter("data.csv", true));
             for (Map.Entry<String, Employee> entry : employees.entrySet()) {
                 Employee employee = entry.getValue();
-                String line = String.format("%s,%s,%s,%s,%s,%.2f",
+                String line = String.format("%s,%s,%s,%s,%s,%.2f,%s",
                         employee.getId(), employee.getFirstName(), employee.getLastName(), employee.getDepartment(),
-                        employee.getRole(), employee.getSalary());
+                        employee.getRole(), employee.getSalary(), employee.getStartDate());
                 writer.write(line);
                 writer.newLine();
             }
@@ -355,15 +286,16 @@ public class StaffService implements Service {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 6) {
-                    String id = data[0].trim();
+                if (data.length == 7) {
+                    String id = String.format("%04d", Integer.parseInt(data[0].trim()));
                     String firstName = data[1].trim();
                     String lastName = data[2].trim();
                     String department = data[3].trim();
                     String role = data[4].trim();
                     double salary = Double.parseDouble(data[5].trim());
+                    String startDate = data[6].trim();
 
-                    Employee employee = new Employee(id, firstName, lastName, department, role, salary);
+                    Employee employee = new Employee(id, firstName, lastName, department, role, salary, startDate);
                     employeeMap.put(id, employee);
                 }
             }
@@ -373,4 +305,5 @@ public class StaffService implements Service {
 
         return employeeMap;
     }
+
 }

@@ -1,3 +1,3 @@
-public interface Manager {
-    void execute(String command);
-}
+    public interface Manager {
+        void execute(String command);
+    }

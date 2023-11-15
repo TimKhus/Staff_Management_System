@@ -5,34 +5,46 @@ public class Employee {
     private String department;
     private String role;
     private double salary;
+    private String startDate;
     private static int counter = 0;
 
-    public Employee(String firstName, String lastName, String department, String role, double salary) {
+    public Employee(String firstName, String lastName, String department, String role, double salary, String startDate) {
         this.id = generateId();
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
         this.role = role;
         this.salary = salary;
+        this.startDate = startDate;
     }
 
-    public Employee(String id, String firstName, String lastName, String department, String role, double salary) {
+    public Employee(String id, String firstName, String lastName, String department, String role, double salary,
+                    String startDate) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
         this.role = role;
         this.salary = salary;
+        this.startDate = startDate;
     }
 
     private String generateId() {
-        if (StaffService.getEmployees().size() > 0) {
-            counter = StaffService.getEmployees().size();
+        if (!StaffService.getEmployees().isEmpty()) {
+            int maxKey = StaffService.getEmployees().keySet()
+                    .stream()
+                    .mapToInt(Integer::parseInt)
+                    .max()
+                    .orElse(0); // or handle the case where the set is empty
+
+            id = String.format("%04d", maxKey + 1);
+        } else {
+            id = String.format("%04d", ++counter);
         }
-        counter++;
-        id = String.format("%d", counter);
         return id;
     }
+
+
 
     public String getId() {
         return id;
@@ -58,6 +70,10 @@ public class Employee {
         return salary;
     }
 
+    public String getStartDate() {
+        return startDate;
+    }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -76,6 +92,10 @@ public class Employee {
 
     public void setSalary(double salary) {
         this.salary = salary;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
     }
 
 }

@@ -9,13 +9,13 @@ public class StaffManagementApp {
 
             Service service = new StaffService(reader, writer);
             Manager manager = new StaffManager(service);
-            System.out.println("Welcome to Staff Management System");
+            System.out.println("Welcome to Staff Management System!");
             System.out.println();
 
             Scanner sc = new Scanner(System.in);
             boolean isRunning = true;
             while (isRunning) {
-                displayCommands();
+                StaffManager.displayCommands();
                 System.out.println("Enter command: ");
                 String command = sc.nextLine().trim();
                 if ("8".equals(command)) {
@@ -31,15 +31,4 @@ public class StaffManagementApp {
         }
     }
 
-    private static void displayCommands() {
-        System.out.println("Available Commands:");
-        System.out.println("1 - Add Employee");
-        System.out.println("2 - Edit Employee");
-        System.out.println("3 - Fire Employee");
-        System.out.println("4 - List Employees");
-        System.out.println("5 - Search by Name");
-        System.out.println("6 - Search by ID");
-        System.out.println("7 - Search by Department");
-        System.out.println("8 - Save & Exit");
-    }
 }
