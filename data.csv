@@ -1,5 +1,11 @@
-1,Tom,Tom,HR,Hr manager,5000.00
-2,John,Johnson,FINANCE,Director,9000.00
-3,Stoyan,Stoyanov,HR,Hr director,9000.00
-4,Sam,Black,SALES,Sales manager,3000.00
-5,Timur,Khusnutdinov,IT,Junior developer,2001.00
+0006,John,Parker,Client,Assistant,2000.00,20.04.2020
+0007,Roy,Jones,Operations,Manager,3000.00,01.01.2020
+0004,Ian,Rogers,Sales,Head of department,5000.00,09.09.2010
+0005,Sava,Penev,Finance,Manager,3500.00,15.12.2015
+0002,Timur,Khusnutdinov,It,Junior developer,2001.00,01.11.2023
+0003,Stoyan,Stoyanov,Hr,Manager,5000.00,01.01.2018
+0011,Kate,Fox,Hr,Trainer,3000.00,01.01.2020
+0001,Tom,Jones,It,Senior developer,5000.00,10.11.2023
+0010,Zack,Brown,Support,Janitor,2500.00,11.11.2023
+0008,Dan,Green,Support,Driver,2500.00,20.05.2008
+0009,Ken,Miles,Marketing,Head of department,4500.00,02.09.2009
